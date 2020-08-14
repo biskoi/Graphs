@@ -1,5 +1,6 @@
 import random
 from util import Queue
+import time
 
 class User:
     def __init__(self, name, id):
@@ -17,12 +18,15 @@ class SocialGraph:
         Creates a bi-directional friendship
         """
         if user_id == friend_id:
-            print("WARNING: You cannot be friends with yourself")
+            # print("WARNING: You cannot be friends with yourself")
+            return False
         elif friend_id in self.friendships[user_id] or user_id in self.friendships[friend_id]:
-            print("WARNING: Friendship already exists")
+            # print("WARNING: Friendship already exists")
+            return False
         else:
             self.friendships[user_id].add(friend_id)
             self.friendships[friend_id].add(user_id)
+            return True
 
     def add_user(self, name):
         """
@@ -31,6 +35,33 @@ class SocialGraph:
         self.last_id += 1  # automatically increment the ID to assign the new user
         self.users[self.last_id] = User(name, self.last_id)
         self.friendships[self.last_id] = set()
+
+    def linear_populate(self, num_users, avg_friendships):
+        # Reset graph
+        self.last_id = 0
+        self.users = {}
+        self.friendships = {}
+
+        for i in range(num_users):
+            self.add_user(i)
+
+        tgt_friendships = num_users * avg_friendships
+        total_friendships = 0
+        collisions = 0
+
+        while total_friendships < tgt_friendships:
+            user_1 = random.randint(1, self.last_id)
+            user_2 = random.randint(1, self.last_id)
+            boolean = self.add_friendship(user_1, user_2)
+
+            if boolean == False:
+                collisions += 1
+            elif boolean == True:
+                total_friendships += 2
+
+        # the denser the graph, the longer linear will take since it's harder to randomly pick a valid friendship
+        print(collisions)
+
 
     def populate_graph(self, num_users, avg_friendships):
         """
@@ -112,12 +143,13 @@ class SocialGraph:
 
         pop_percent = len(visited) / self.last_id
         
-        return [pop_percent, avg_separation // len(visited), visited]
+        return [len(visited), pop_percent, avg_separation // len(visited), visited]
 
 
 if __name__ == '__main__':
     sg = SocialGraph()
-    sg.populate_graph(1000, 5)
+    sg.populate_graph(2000, 1000)
+    # sg.linear_populate(2000, 1000)
     # print(sg.friendships)
-    connections = sg.get_all_social_paths(1)
-    print(connections)
+    # connections = sg.get_all_social_paths(1)
+    # print(connections)
