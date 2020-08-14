@@ -110,7 +110,8 @@ while len(visited) < len(world.rooms):
                 break
     elif cur_room.id in visited:
         for direction in exits:
-            
+            print('direction')
+            #Was writing this out when the outage hit, I don't remember what I was doing anymore
     else:
         #if cur room id is in visited and no unvisited
         #go to the nearest node with unvisited exits
