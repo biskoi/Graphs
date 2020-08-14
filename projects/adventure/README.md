@@ -15,7 +15,7 @@ You may find the commands `player.current_room.id`, `player.current_room.get_exi
 To solve this path, you'll want to construct your own traversal graph. You start in room `0`, which contains exits `['n', 's', 'w', 'e']`. Your starting graph should look something like this:
 
 ```
-{
+{  direction: vertex
   0: {'n': '?', 's': '?', 'w': '?', 'e': '?'}
 }
 ```

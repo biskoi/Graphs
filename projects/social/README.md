@@ -48,7 +48,23 @@ Note that in this sample, Users 3, 4 and 9 are not in User 1's extended social n
 
 1. To create 100 users with an average of 10 friends each, how many times would you need to call `add_friendship()`? Why?
 
+500 times - We can satisfy this by multiplying the number of users with the number of average friends desired to visualise the number of A -> B connections that need to be drawn. Since add_friendship() does two operations at once (connects A to B, B to A) we can halve the number of times we need to call it. The math works out to be 100 * 10 = 1000, and then halved to be 500.
+
+To fulfill the average part, populate an array with all combinations of friendships, shuffle the array so that the first users dont get all the friends, and then iterate through the array 500 times.
+
+
 2. If you create 1000 users with an average of 5 random friends each, what percentage of other users will be in a particular user's extended social network? What is the average degree of separation between a user and those in his/her extended network?
+
+To figure out what percent of the population a person is friends with, we can just divide the number of friends a person has by the total population.
+percentage_of_population_as_friends = num_of_friends / population
+
+The average degree of separation can be calculated by summing up the path length to each extended user, and then dividing by the number of extended users.
+avg_separation = 0
+for path_length of each friend:
+   avg_separation += path_length
+
+avg_separation = avg_separation / len(friend)
+
 
 
 
