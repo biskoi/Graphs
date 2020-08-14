@@ -73,7 +73,6 @@ def bfs(start_room):
     print(f'bfs invoked in room {cur_room.id}')
     #enqueue the current room object, and the path taken to get to that room from player's current room
     q.enqueue([cur_room, None])
-    local_visited = set()
 
 
 
@@ -83,34 +82,85 @@ def bfs(start_room):
         cur_path = cur_path_dir[1]
         exits = cur_room.get_exits()
 
-        if cur_room.id not in local_visited:
-            local_visited.add(cur_room.id)
+        print(cur_path)
+        print(f'current length of visited: {len(visited)}')
 
-            if cur_room.id not in visited:
-                #found a room we haven't visited
-                print(f'cur path dir: {cur_path_dir}')
-                # path = []
-                # for room_dir in cur_path_dir[:-1]:
-                #     if room_dir[1] is not None:
-                #         path.append(room_dir[1])
-                print(f'{cur_room.id} not in visited, need to go there. we are at {player.current_room.id}')
-                print(f'return path {cur_path}')
-                return cur_path
-                    
-            else:
-                for direction in exits:
-                    #this part is fucked
-                    vert_in_dir = world.rooms[cur_room.id].get_room_in_direction(direction)
-                    new_path = None
-                    if cur_path is None:
-                        new_path = []
-                    else:
-                        new_path = cur_path.copy()
+        if cur_room.id not in visited:
+            #found a room we haven't visited
+            print(f'cur path dir: {cur_path_dir}')
+            # path = []
+            # for room_dir in cur_path_dir[:-1]:
+            #     if room_dir[1] is not None:
+            #         path.append(room_dir[1])
+            print(f'{cur_room.id} not in visited, need to go there. we are at {player.current_room.id}')
+            print(f'return path {cur_path}')
+            return cur_path
+                
+        else:
+            for direction in exits:
+                #this part is fucked
+                vert_in_dir = world.rooms[cur_room.id].get_room_in_direction(direction)
+                new_path = None
+                if cur_path is None:
+                    new_path = []
+                else:
+                    new_path = cur_path.copy()
 
-                    new_path.append(direction)
+                new_path.append(direction)
 
-                    new_q = [vert_in_dir, new_path]
-                    q.enqueue(new_q)
+                new_q = [vert_in_dir, new_path]
+                q.enqueue(new_q)
+
+def dfs(start_room):
+    s = Stack()
+    cur_room = start_room
+    last_move = traversal_path[-1]
+    print(f'dfs invoked in room {cur_room.id}')
+    #enqueue the current room object, and the path taken to get to that room from player's current room
+    s.push([cur_room, None])
+
+    #need to stop dfs from going back to the room it just came from and repeating [n, s, n, s, n, s, etc]
+
+    while s.size() > 0:
+        cur_path_dir = s.pop()
+        cur_room = cur_path_dir[0]
+        cur_path = cur_path_dir[1]
+        exits = cur_room.get_exits()
+
+        print(cur_path)
+        print(f'current length of visited: {len(visited)}')
+
+        if cur_room.id not in visited:
+            #found a room we haven't visited
+            print(f'cur path dir: {cur_path_dir}')
+            # path = []
+            # for room_dir in cur_path_dir[:-1]:
+            #     if room_dir[1] is not None:
+            #         path.append(room_dir[1])
+            print(f'{cur_room.id} not in visited, need to go there. we are at {player.current_room.id}')
+            print(f'return path {cur_path}')
+            return cur_path
+                
+        else:
+            for direction in exits:
+                #this part is fucked
+                if len(exits) > 1:
+                #if direction NOT where we just came from
+                    if direction != cur_path[-1]:
+                        vert_in_dir = world.rooms[cur_room.id].get_room_in_direction(direction)
+                        new_path = None
+                        if cur_path is None:
+                            new_path = []
+                        else:
+                            new_path = cur_path.copy()
+
+                        new_path.append(direction)
+
+                        new_s = [vert_in_dir, new_path]
+                        s.push(new_s)
+                else:
+                    #we hit a 1 room dead end, go back one
+                    return dfs(cur_room)
 
 
 
@@ -118,9 +168,10 @@ def bfs(start_room):
 # while len(visited) > len(world.rooms):
 while len(visited) < len(world.rooms):
 # if True:
-
+    
     cur_room = player.current_room
     print(f'start of loop at location {cur_room.id}---------------------------------------------------------')
+    print(f'current length of visited: {len(visited)}')
     exits = cur_room.get_exits()
     has_unvisited = []
     # print(exits)
@@ -175,15 +226,19 @@ while len(visited) < len(world.rooms):
         if len(has_unvisited) > 0:
             print(f'traversing to unvisited direction {has_unvisited[0]}')
             traverse(has_unvisited[0])
-        elif len(has_unvisited) == 0:
+        elif len(has_unvisited) == 0 and len(visited) < 300:
             print(f'invoking bfs')
             #we've been here and there are no unvisited paths
             paths = bfs(cur_room)
             for i in paths:
                 print(player.current_room.id)
                 traverse(i)
-
-
+        elif len(has_unvisited) == 0 and len(visited) >= 300:
+            print(f'invoking dfs')
+            paths = dfs(cur_room)
+            for i in paths:
+                print(player.current_room.id)
+                traverse(i)
 print(visited)
 # You are provided with a pre-generated graph consisting of 500 rooms. You are responsible for filling `traversal_path` with directions that, when walked in order, will visit every room on the map at least once.
 
